@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snxy.user.agent.dao.mapper.IdentityTypeMapper">
+  <resultMap id="BaseResultMap" type="com.snxy.user.agent.domain.IdentityType">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="identy_id" jdbcType="TINYINT" property="identyId" />
+    <result column="identy_name" jdbcType="VARCHAR" property="identyName" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <insert id="insert" parameterType="com.snxy.user.agent.domain.IdentityType">
+    insert into identity_type (id, identy_id, identy_name, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{identyId,jdbcType=TINYINT}, #{identyName,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.snxy.user.agent.domain.IdentityType">
+    insert into identity_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="identyId != null">
+        identy_id,
+      </if>
+      <if test="identyName != null">
+        identy_name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="identyId != null">
+        #{identyId,jdbcType=TINYINT},
+      </if>
+      <if test="identyName != null">
+        #{identyName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
