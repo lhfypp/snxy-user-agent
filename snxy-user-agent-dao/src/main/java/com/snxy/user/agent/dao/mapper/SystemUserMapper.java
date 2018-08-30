@@ -14,4 +14,7 @@ public interface SystemUserMapper {
     int updateByPrimaryKeySelective(SystemUser record);
 
     int updateByPrimaryKey(SystemUser record);
+
+    //登录
+    SystemUser login(SystemUser record);
 }
