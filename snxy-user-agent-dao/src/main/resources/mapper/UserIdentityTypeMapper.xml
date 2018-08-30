@@ -5,10 +5,27 @@
     <id column="system_user_id" jdbcType="BIGINT" property="systemUserId" />
     <id column="identy_type_id" jdbcType="INTEGER" property="identyTypeId" />
     <result column="is_active" jdbcType="TINYINT" property="isActive" />
+    <association property="identityType" javaType="com.snxy.user.agent.domain.IdentityType">
+                  <id column="id" property="id"/>
+                  <result column="identy_id" property="identyId"/>
+                  <result column="identy_name" property="identyName"/>
+                   <result column="remark" property="remark"/>
+     </association>
   </resultMap>
   <sql id="Base_Column_List">
     system_user_id, identy_type_id, is_active
   </sql>
+  <!--通过id查询用户的身份-->
+  <select id="selectIdentityTypeById" parameterType="java.lang.Long" resultType="com.snxy.user.agent.domain.UserIdentity">
+    select A.system_user_id as systemUserId,
+            A.identy_type_id as identyId,
+            A.is_active as isActive,
+            B.identy_name as identyName
+    from user_identity_type A
+    inner join identity_type B on
+    A.identy_type_id = B.id
+    where A.system_user_id = #{systemUserId,jdbcYype=BIGINT }
+  </select>
   <select id="selectByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityTypeKey" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />

@@ -24,6 +24,15 @@
     from system_user
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <!--登录-->
+  <select id="login" parameterType="com.snxy.user.agent.domain.SystemUser" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from system_user
+    where account = #{account,jdbcType=VARCHAR}
+    and
+    pwd = #{pwd,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from system_user
     where id = #{id,jdbcType=BIGINT}
