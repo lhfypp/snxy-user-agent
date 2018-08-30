@@ -1,5 +1,6 @@
 package com.snxy.user.agent.service;
 
+import com.snxy.user.agent.service.po.CacheUserPO;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
 
@@ -20,5 +21,7 @@ public interface UserVerificationService {
      * @param token
      * @return
      */
-    SystemUserVO getSystemUserByToken(String token);
+    CacheUserPO getSystemUserByToken(String token);
+
+    void loginOut(String token);
 }

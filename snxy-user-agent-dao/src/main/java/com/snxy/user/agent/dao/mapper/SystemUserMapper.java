@@ -1,6 +1,7 @@
 package com.snxy.user.agent.dao.mapper;
 
 import com.snxy.user.agent.domain.SystemUser;
+import org.apache.ibatis.annotations.Param;
 
 public interface SystemUserMapper {
     int deleteByPrimaryKey(Long id);
@@ -16,5 +17,5 @@ public interface SystemUserMapper {
     int updateByPrimaryKey(SystemUser record);
 
     //登录
-    SystemUser login(SystemUser record);
+    SystemUser getByAccount(@Param("account") String account);
 }

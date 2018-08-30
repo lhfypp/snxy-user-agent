@@ -14,9 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CacheUserPO {
 
-    private Long userId;
+    private Long  id;
+    private String account;
     private String chineseName;
-
+    private String token;
     private Integer deviceType ;
     private Long expireTime;
 

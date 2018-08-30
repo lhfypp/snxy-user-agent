@@ -12,7 +12,7 @@ import lombok.ToString;
 //查询用户身份的映射表
 public class UserIdentity {
     private Long systemUserId;
-    private Integer identyId;
-    private Byte isActive;
-    private String identyName;
+    private Integer identityId;
+    private Boolean isActive;
+    private String identityName;
 }

@@ -3,9 +3,9 @@ package com.snxy.user.agent.domain;
 public class IdentityType {
     private Integer id;
 
-    private Byte identyId;
+    private Byte identityId;
 
-    private String identyName;
+    private String identityName;
 
     private String remark;
 
@@ -17,20 +17,20 @@ public class IdentityType {
         this.id = id;
     }
 
-    public Byte getIdentyId() {
-        return identyId;
+    public Byte getIdentityId() {
+        return identityId;
     }
 
-    public void setIdentyId(Byte identyId) {
-        this.identyId = identyId;
+    public void setIdentityId(Byte identityId) {
+        this.identityId = identityId;
     }
 
-    public String getIdentyName() {
-        return identyName;
+    public String getIdentityName() {
+        return identityName;
     }
 
-    public void setIdentyName(String identyName) {
-        this.identyName = identyName;
+    public void setIdentityName(String identityName) {
+        this.identityName = identityName;
     }
 
     public String getRemark() {
@@ -39,5 +39,37 @@ public class IdentityType {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IdentityType)) return false;
+
+        IdentityType that = (IdentityType) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (identityId != null ? !identityId.equals(that.identityId) : that.identityId != null) return false;
+        if (identityName != null ? !identityName.equals(that.identityName) : that.identityName != null) return false;
+        return remark != null ? remark.equals(that.remark) : that.remark == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (identityId != null ? identityId.hashCode() : 0);
+        result = 31 * result + (identityName != null ? identityName.hashCode() : 0);
+        result = 31 * result + (remark != null ? remark.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "IdentityType{" +
+                "id=" + id +
+                ", identityId=" + identityId +
+                ", identityName='" + identityName + '\'' +
+                ", remark='" + remark + '\'' +
+                '}';
     }
 }

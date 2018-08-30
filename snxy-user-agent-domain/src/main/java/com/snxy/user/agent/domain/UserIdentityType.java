@@ -1,13 +1,13 @@
 package com.snxy.user.agent.domain;
 
 public class UserIdentityType extends UserIdentityTypeKey {
-    private Byte isActive;
+    private Boolean isActive;
 
-    public Byte getIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(Byte isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 }

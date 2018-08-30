@@ -3,6 +3,7 @@ package com.snxy.user.agent.dao.mapper;
 import com.snxy.user.agent.domain.UserIdentity;
 import com.snxy.user.agent.domain.UserIdentityType;
 import com.sun.tools.javac.util.List;
+import org.apache.ibatis.annotations.Param;
 //import com.snxy.user.agent.domain.UserIdentityTypeKey;
 
 public interface UserIdentityTypeMapper {
@@ -18,5 +19,5 @@ public interface UserIdentityTypeMapper {
 
     int updateByPrimaryKey(UserIdentityType record);
 
-    List<UserIdentity> selectIdentityTypeById(Long systemUserId);
+    List<UserIdentity> listUserIdentityBySystemUserId(@Param("systemUserId") Long systemUserId);
 }

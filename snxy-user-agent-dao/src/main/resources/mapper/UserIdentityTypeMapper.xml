@@ -3,45 +3,45 @@
 <mapper namespace="com.snxy.user.agent.dao.mapper.UserIdentityTypeMapper">
   <resultMap id="BaseResultMap" type="com.snxy.user.agent.domain.UserIdentityType">
     <id column="system_user_id" jdbcType="BIGINT" property="systemUserId" />
-    <id column="identy_type_id" jdbcType="INTEGER" property="identyTypeId" />
+    <id column="identity_type_id" jdbcType="INTEGER" property="identityTypeId" />
     <result column="is_active" jdbcType="TINYINT" property="isActive" />
     <association property="identityType" javaType="com.snxy.user.agent.domain.IdentityType">
                   <id column="id" property="id"/>
-                  <result column="identy_id" property="identyId"/>
-                  <result column="identy_name" property="identyName"/>
+                  <result column="identity_id" property="identityId"/>
+                  <result column="identity_name" property="identityName"/>
                    <result column="remark" property="remark"/>
      </association>
   </resultMap>
   <sql id="Base_Column_List">
-    system_user_id, identy_type_id, is_active
+    system_user_id, identity_type_id, is_active
   </sql>
   <!--通过id查询用户的身份-->
-  <select id="selectIdentityTypeById" parameterType="java.lang.Long" resultType="com.snxy.user.agent.domain.UserIdentity">
+  <select id="listUserIdentityBySystemUserId" parameterType="java.lang.Long" resultType="com.snxy.user.agent.domain.UserIdentity">
     select A.system_user_id as systemUserId,
-            A.identy_type_id as identyId,
+            A.identity_type_id as identityId,
             A.is_active as isActive,
-            B.identy_name as identyName
-    from user_identity_type A
-    inner join identity_type B on
-    A.identy_type_id = B.id
+            B.identity_name as identityName
+    from user_identitity_type A
+    inner join identitity_type B on
+    A.identity_type_id = B.id
     where A.system_user_id = #{systemUserId,jdbcYype=BIGINT }
   </select>
   <select id="selectByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityTypeKey" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_identity_type
+    from user_identitity_type
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identy_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identyTypeId,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityTypeKey">
     delete from user_identity_type
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identy_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identyTypeId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.snxy.user.agent.domain.UserIdentityType">
-    insert into user_identity_type (system_user_id, identy_type_id, is_active
+    insert into user_identity_type (system_user_id, identity_type_id, is_active
       )
-    values (#{systemUserId,jdbcType=BIGINT}, #{identyTypeId,jdbcType=INTEGER}, #{isActive,jdbcType=TINYINT}
+    values (#{systemUserId,jdbcType=BIGINT}, #{identityTypeId,jdbcType=INTEGER}, #{isActive,jdbcType=TINYINT}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.snxy.user.agent.domain.UserIdentityType">
@@ -50,8 +50,8 @@
       <if test="systemUserId != null">
         system_user_id,
       </if>
-      <if test="identyTypeId != null">
-        identy_type_id,
+      <if test="identityTypeId != null">
+        identity_type_id,
       </if>
       <if test="isActive != null">
         is_active,
@@ -61,8 +61,8 @@
       <if test="systemUserId != null">
         #{systemUserId,jdbcType=BIGINT},
       </if>
-      <if test="identyTypeId != null">
-        #{identyTypeId,jdbcType=INTEGER},
+      <if test="identityTypeId != null">
+        #{identityTypeId,jdbcType=INTEGER},
       </if>
       <if test="isActive != null">
         #{isActive,jdbcType=TINYINT},
@@ -77,12 +77,12 @@
       </if>
     </set>
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identy_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identityTypeId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityType">
     update user_identity_type
     set is_active = #{isActive,jdbcType=TINYINT}
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identy_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identityTypeId,jdbcType=INTEGER}
   </update>
 </mapper>

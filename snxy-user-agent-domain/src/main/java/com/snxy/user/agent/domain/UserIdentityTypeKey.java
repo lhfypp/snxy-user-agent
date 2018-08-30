@@ -3,7 +3,7 @@ package com.snxy.user.agent.domain;
 public class UserIdentityTypeKey {
     private Long systemUserId;
 
-    private Integer identyTypeId;
+    private Integer identityTypeId;
 
     public Long getSystemUserId() {
         return systemUserId;
@@ -14,10 +14,10 @@ public class UserIdentityTypeKey {
     }
 
     public Integer getIdentyTypeId() {
-        return identyTypeId;
+        return identityTypeId;
     }
 
     public void setIdentyTypeId(Integer identyTypeId) {
-        this.identyTypeId = identyTypeId;
+        this.identityTypeId = identityTypeId;
     }
 }
