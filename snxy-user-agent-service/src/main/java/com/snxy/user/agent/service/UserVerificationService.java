@@ -1,5 +1,6 @@
 package com.snxy.user.agent.service;
 
+import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
 
 /**
@@ -8,13 +9,11 @@ import com.snxy.user.agent.service.vo.SystemUserVO;
  */
 public interface UserVerificationService {
     /**
-     * 用户登录系统
-     *
-     * @param userName 用户名
-     * @param password 密码
+     * 用户登陆
+     * @param loginUserVO
      * @return
      */
-    SystemUserVO login(String userName, String password);
+    SystemUserVO login(LoginUserVO loginUserVO);
 
     /**
      * 由token获取用户信息

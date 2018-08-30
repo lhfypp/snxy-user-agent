@@ -1,5 +1,6 @@
 package com.snxy.user.agent.domain;
 
+import com.snxy.common.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,7 @@ public class SystemUser {
     private Date gmtModified;
 
     private Byte accountStatus;
-
+   
 //    public Long getId() {
 //        return id;
 //    }

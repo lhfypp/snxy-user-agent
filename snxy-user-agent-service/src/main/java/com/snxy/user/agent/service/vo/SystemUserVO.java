@@ -15,4 +15,8 @@ public class SystemUserVO {
     //用户信息
     List<IdentityType> identityTypes;
 
+    private String name;
+
+    private Long userId;
+
 }
