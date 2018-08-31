@@ -13,11 +13,11 @@ public class UserIdentityTypeKey {
         this.systemUserId = systemUserId;
     }
 
-    public Integer getIdentyTypeId() {
+    public Integer getIdentityTypeId() {
         return identityTypeId;
     }
 
-    public void setIdentyTypeId(Integer identyTypeId) {
+    public void setIdentityTypeId(Integer identityTypeId) {
         this.identityTypeId = identityTypeId;
     }
 }

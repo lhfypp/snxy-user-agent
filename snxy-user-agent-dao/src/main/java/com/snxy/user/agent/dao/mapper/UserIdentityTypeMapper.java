@@ -2,9 +2,9 @@ package com.snxy.user.agent.dao.mapper;
 
 import com.snxy.user.agent.domain.UserIdentity;
 import com.snxy.user.agent.domain.UserIdentityType;
-import com.sun.tools.javac.util.List;
 import org.apache.ibatis.annotations.Param;
-//import com.snxy.user.agent.domain.UserIdentityTypeKey;
+
+import java.util.List;
 
 public interface UserIdentityTypeMapper {
 //    int deleteByPrimaryKey(UserIdentityTypeKey key);

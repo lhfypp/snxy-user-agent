@@ -1,6 +1,7 @@
 package com.snxy.user.agent.dao.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -14,6 +15,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Created by lvhf on 2018/08/29.
@@ -46,6 +48,19 @@ public class MybatisConfig {
     public DataSourceTransactionManager transactionManager() throws Exception {
         log.info("配置DataSourceTransactionManager");
         return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean
+    public PageHelper pageHelper() {
+        log.info("配置PageHelper");
+        PageHelper pageHelper = new PageHelper();
+        Properties properties = new Properties();
+        properties.setProperty("offsetAsPageNum", "true");
+        properties.setProperty("rowBoundsWithCount", "true");
+        properties.setProperty("reasonable", "true");
+        properties.setProperty("dialect", "mysql");
+        pageHelper.setProperties(properties);
+        return pageHelper;
     }
 
 }

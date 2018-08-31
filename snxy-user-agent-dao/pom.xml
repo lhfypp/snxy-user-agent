@@ -40,7 +40,11 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>druid</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>1.2.3</version>
+		</dependency>
 		<dependency>
 			<groupId>com.snxy.user.agent</groupId>
 			<artifactId>snxy-user-agent-domain</artifactId>

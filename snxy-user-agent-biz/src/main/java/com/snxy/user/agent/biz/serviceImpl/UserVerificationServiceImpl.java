@@ -14,7 +14,6 @@ import com.snxy.user.agent.service.po.CacheUserPO;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.TimeoutUtils;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     @Resource
     private UserIdentityTypeMapper userIdentityTypeMapper;
 
-    private final String AES_KEY = "GDuAdPEZLlCBe683swP9GQ";
+    private final String AES_KEY = "snxy-user-agent";
     private final String USER_TOKEN_FORMATE = "TOKEN-%s-%s-%s";
     private final String REDIS_CACHE_FORMATE = "CACHE-%s-%s";
     private final Long   CACHE_EXPRIRETIME  = 1L;
@@ -79,13 +78,13 @@ public class UserVerificationServiceImpl implements UserVerificationService {
                 hasActiveIdentity = true;
             }
         }
-
+       log.info("userIdentities : [{}] ",userIdentities);
         if(!hasActiveIdentity){
             // 没有活跃身份，将第一个身份设置为active
             UserIdentityType userIdentityType = new UserIdentityType();
                userIdentityType.setIsActive(true);
                userIdentityType.setSystemUserId(userIdentities.get(0).getSystemUserId());
-               userIdentityType.setIdentyTypeId(userIdentities.get(0).getIdentityId());
+               userIdentityType.setIdentityTypeId(userIdentities.get(0).getIdentityId());
 
             int n = this.userIdentityTypeMapper.updateByPrimaryKey(userIdentityType);
             if( n != 1){
@@ -101,10 +100,11 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         }else{
             device = DEVICE_MOBILE;
         }
-        //存储在redis中
-       CacheUserPO cacheUserPO = this.cacheUser(systemUser,device,loginUserVO.getDeviceType());
         // token
-        String token = this.getToken(systemUser,device,cacheUserPO.getExpireTime());
+        Long expireTime = System.currentTimeMillis() + TimeoutUtils.toMillis(CACHE_EXPRIRETIME,TimeUnit.DAYS);
+        String token = this.getToken(systemUser,device,expireTime);
+        //存储在redis中
+       CacheUserPO cacheUserPO = this.cacheUser(systemUser,device,loginUserVO.getDeviceType(),expireTime,token);
        // 返回 SystemUserVO
        SystemUserVO systemUserVO = SystemUserVO.builder()
                                      .systemUserId(systemUser.getId())
@@ -118,17 +118,18 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
     public String getToken(SystemUser systemUser,String loginDevice,Long expireTime){
         String rowToken = String.format(USER_TOKEN_FORMATE,systemUser.getAccount(),loginDevice,expireTime);
-        String token = AESUtil.encryptContent(rowToken, Base64.encodeBase64String(Base64.decodeBase64(AES_KEY)));
+        String token = AESUtil.encryptContent(rowToken, AES_KEY);
         return token;
     }
 
-    public CacheUserPO cacheUser(SystemUser systemUser,String loginDevice,Integer deviceType){
+    public CacheUserPO cacheUser(SystemUser systemUser,String loginDevice,Integer deviceType,Long expireTime,String token){
         String redisKey = String.format(REDIS_CACHE_FORMATE,systemUser.getAccount(),loginDevice);
         CacheUserPO cacheUserPO = CacheUserPO.builder().id(systemUser.getId())
                  .account(systemUser.getAccount())
+                .token(token)
                 .chineseName(systemUser.getChineseName())
                 .deviceType(deviceType)
-                .expireTime(System.currentTimeMillis() + TimeoutUtils.toMillis(CACHE_EXPRIRETIME,TimeUnit.DAYS))
+                .expireTime(expireTime)
                 .build();
 
         redisTemplate.opsForValue().set(redisKey, cacheUserPO,CACHE_EXPRIRETIME,TimeUnit.DAYS);
@@ -159,7 +160,7 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         String rowToken;
         try {
             // 解密token，获取用户身份信息
-            rowToken = AESUtil.decryptContent(token, Base64.encodeBase64String(Base64.decodeBase64(AES_KEY)));
+            rowToken = AESUtil.decryptContent(token, AES_KEY);
         } catch (Exception e) {
             throw new BizException("解析token失败,请重新登陆");
         }

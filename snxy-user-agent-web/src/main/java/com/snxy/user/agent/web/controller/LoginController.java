@@ -1,4 +1,4 @@
-package com.snxy.user.agent.web;
+package com.snxy.user.agent.web.controller;
 
 import com.snxy.common.response.ResultData;
 import com.snxy.common.util.CheckUtil;
@@ -9,7 +9,6 @@ import com.snxy.user.agent.service.po.CacheUserPO;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -60,11 +59,16 @@ public class LoginController {
     }
 
 
+    /**
+     * 退出登陆
+     * @param token
+     * @return
+     */
     @RequestMapping("/loginOut")
     public ResultData loginOut(@RequestParam(value = "token",required = true)String token){
         CheckUtil.isTrue(StringUtil.isNotBlank(token),"token不能为空");
         this.userVerificationService.loginOut(token);
-        return null;
+        return ResultData.success("");
     }
 
 

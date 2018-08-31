@@ -16,27 +16,27 @@
     system_user_id, identity_type_id, is_active
   </sql>
   <!--通过id查询用户的身份-->
-  <select id="listUserIdentityBySystemUserId" parameterType="java.lang.Long" resultType="com.snxy.user.agent.domain.UserIdentity">
+  <select id="listUserIdentityBySystemUserId"  resultType="com.snxy.user.agent.domain.UserIdentity">
     select A.system_user_id as systemUserId,
             A.identity_type_id as identityId,
             A.is_active as isActive,
             B.identity_name as identityName
-    from user_identitity_type A
-    inner join identitity_type B on
-    A.identity_type_id = B.id
-    where A.system_user_id = #{systemUserId,jdbcYype=BIGINT }
+    from user_identity_type A
+       inner join identity_type B
+       on  A.identity_type_id = B.id
+    where A.system_user_id = #{systemUserId,jdbcType=BIGINT }
   </select>
   <select id="selectByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityTypeKey" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_identitity_type
+    from user_identity_type
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identity_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identityTypeId,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="com.snxy.user.agent.domain.UserIdentityTypeKey">
     delete from user_identity_type
     where system_user_id = #{systemUserId,jdbcType=BIGINT}
-      and identity_type_id = #{identyTypeId,jdbcType=INTEGER}
+      and identity_type_id = #{identityTypeId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.snxy.user.agent.domain.UserIdentityType">
     insert into user_identity_type (system_user_id, identity_type_id, is_active

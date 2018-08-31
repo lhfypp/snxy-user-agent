@@ -8,9 +8,9 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
   </resultMap>
   <insert id="insert" parameterType="com.snxy.user.agent.domain.IdentityType">
-    insert into identity_type (id, identy_id, identy_name, 
+    insert into identity_type (id, identity_id, identity_name,
       remark)
-    values (#{id,jdbcType=INTEGER}, #{identyId,jdbcType=TINYINT}, #{identyName,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{identityId,jdbcType=TINYINT}, #{identityName,jdbcType=VARCHAR},
       #{remark,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.snxy.user.agent.domain.IdentityType">
@@ -20,10 +20,10 @@
         id,
       </if>
       <if test="identityId != null">
-        identy_id,
+        identity_id,
       </if>
       <if test="identityName != null">
-        identy_name,
+        identity_name,
       </if>
       <if test="remark != null">
         remark,
@@ -34,10 +34,10 @@
         #{id,jdbcType=INTEGER},
       </if>
       <if test="identityId != null">
-        #{identyId,jdbcType=TINYINT},
+        #{identityId,jdbcType=TINYINT},
       </if>
       <if test="identityName != null">
-        #{identyName,jdbcType=VARCHAR},
+        #{identityName,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
