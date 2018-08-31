@@ -1,5 +1,6 @@
 package com.snxy.user.agent.service.vo;
 
+
 import com.snxy.common.util.CheckUtil;
 import com.snxy.common.util.StringUtil;
 import lombok.Data;
