@@ -18,4 +18,6 @@ public interface SystemUserMapper {
 
     //登录
     SystemUser getByAccount(@Param("account") String account);
+
+    SystemUser getByPhoneNumber(@Param("mobile") String mobile);
 }

@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class SnxyUserAgentDaoApplicationTests {
+public class SnxyUserAgentDaoTests {
 
 	@Resource
 	private SystemUserMapper systemUserMappe;

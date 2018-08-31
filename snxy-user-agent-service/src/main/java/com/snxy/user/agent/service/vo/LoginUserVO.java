@@ -12,14 +12,14 @@ import lombok.Data;
 @Data
 public class LoginUserVO {
 
-    private   String userName;
+    private   String username;
     private  String password;
-
+    private  Integer loginType ; // 1 -- 手机号   2 -- account 账号
     private Integer deviceType;
 
 
 
     public void checkParam(){
-        CheckUtil.isTrue(StringUtil.isNotBlank(userName) && StringUtil.isNotBlank(password));
+        CheckUtil.isTrue(StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password));
    }
 }

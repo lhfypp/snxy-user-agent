@@ -58,6 +58,19 @@ public class LoginController {
         return ResultData.success(cacheUserPO);
     }
 
+    /***
+     * 切换身份
+     * @param identityId
+     * @return
+     */
+    @RequestMapping("/switchIdentity")
+    public ResultData  switchIdentity(String token,Integer identityId){
+        CheckUtil.isTrue(StringUtil.isNotBlank(token),"token不能为空");
+        Long systemUserId = 1L;
+        this.userVerificationService.switchIdentity(systemUserId,identityId);
+        return ResultData.success("");
+    }
+
 
     /**
      * 退出登陆
