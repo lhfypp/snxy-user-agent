@@ -24,4 +24,6 @@ public interface UserVerificationService {
     CacheUserPO getSystemUserByToken(String token);
 
     void loginOut(String token);
+
+    void switchIdentity(Long systemUserId, Integer identityId);
 }

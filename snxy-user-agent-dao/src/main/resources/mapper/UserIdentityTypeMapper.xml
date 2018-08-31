@@ -5,12 +5,12 @@
     <id column="system_user_id" jdbcType="BIGINT" property="systemUserId" />
     <id column="identity_type_id" jdbcType="INTEGER" property="identityTypeId" />
     <result column="is_active" jdbcType="TINYINT" property="isActive" />
-    <association property="identityType" javaType="com.snxy.user.agent.domain.IdentityType">
+<!--    <association property="identityType" javaType="com.snxy.user.agent.domain.IdentityType">
                   <id column="id" property="id"/>
                   <result column="identity_id" property="identityId"/>
                   <result column="identity_name" property="identityName"/>
                    <result column="remark" property="remark"/>
-     </association>
+     </association>-->
   </resultMap>
   <sql id="Base_Column_List">
     system_user_id, identity_type_id, is_active

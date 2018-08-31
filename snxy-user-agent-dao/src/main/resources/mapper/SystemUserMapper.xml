@@ -24,7 +24,7 @@
     from system_user
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <!--登录-->
+
   <select id="getByAccount"  resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -32,6 +32,14 @@
     where account = #{account,jdbcType=VARCHAR}
 
   </select>
+
+  <select id="getByPhoneNumber"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from system_user
+    where mobile = #{mobile,jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from system_user
     where id = #{id,jdbcType=BIGINT}

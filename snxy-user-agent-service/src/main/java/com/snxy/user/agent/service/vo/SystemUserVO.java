@@ -18,10 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 public class SystemUserVO {
     private String token;
-    //用户信息
-    List<UserIdentity> identityTypes;
-
     private String name;
     private Long systemUserId;
+    private List<UserIdentity> identityTypes;
 
 }

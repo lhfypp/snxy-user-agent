@@ -55,7 +55,8 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler({BizException.class, ValidateException.class})
+  //  @ExceptionHandler({BizException.class, ValidateException.class})
+    @ExceptionHandler(Exception.class)
     public ResultData  exceptionHandler(Exception e){
         if(e instanceof BizException){
             BizException bizException = (BizException) e;

@@ -9,6 +9,8 @@ import com.snxy.user.agent.dao.mapper.UserIdentityTypeMapper;
 import com.snxy.user.agent.domain.SystemUser;
 import com.snxy.user.agent.domain.UserIdentity;
 import com.snxy.user.agent.domain.UserIdentityType;
+import com.snxy.user.agent.domain.UserIdentityTypeKey;
+import com.snxy.user.agent.service.SystemUserService;
 import com.snxy.user.agent.service.UserVerificationService;
 import com.snxy.user.agent.service.po.CacheUserPO;
 import com.snxy.user.agent.service.vo.LoginUserVO;
@@ -35,7 +37,7 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     private RedisTemplate<String,Object> redisTemplate;
 
     @Resource
-    private SystemUserMapper systemUserMapper;
+    private SystemUserService systemUserService;
     @Resource
     private UserIdentityTypeMapper userIdentityTypeMapper;
 
@@ -52,23 +54,23 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     @Transactional(rollbackFor = Exception.class)
     public SystemUserVO login(LoginUserVO loginUserVO) {
         // 根据登陆账号查找用户
-        String loginAccount = loginUserVO.getUserName();
-        SystemUser systemUser =  systemUserMapper.getByAccount(loginAccount);
-
+        String username = loginUserVO.getUsername();
+        Integer loginType = loginUserVO.getLoginType();
+        SystemUser systemUser =  systemUserService.loadSystemUser(username,loginType);
         if(systemUser == null ){
-            log.error("账号 : [{}]  登陆失败 : [{}]",loginAccount,"账号不存在");
-            throw new BizException("账号不存在");
+            log.error("登录号 : [{}]  登陆失败 : [{}]",username,"账号或手机号不存在");
+            throw new BizException("账号或手机号不存在");
         }
 
         String password = MD5Util.encrypt(loginUserVO.getPassword());
         if( !password.equals(systemUser.getPwd()) ){
-            log.error("账号 ：[{}] 登陆失败 ：[{}]",loginAccount,"密码错误");
+            log.error("账号 ：[{}] 登陆失败 ：[{}]",username,"密码错误");
             throw new BizException("密码错误");
         }
         // 查找角色
         List<UserIdentity> userIdentities = this.userIdentityTypeMapper.listUserIdentityBySystemUserId(systemUser.getId());
         if(userIdentities == null || userIdentities.isEmpty()){
-            log.error("账号 ：[{}] 登陆失败 ：[{}]",loginAccount,"没有查询到用户角色");
+            log.error("账号 ：[{}] 登陆失败 ：[{}]",username,"没有查询到用户角色");
             throw new BizException("没有查找到用户角色");
         }
 
@@ -88,7 +90,7 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
             int n = this.userIdentityTypeMapper.updateByPrimaryKey(userIdentityType);
             if( n != 1){
-                log.error("账号 ：[{}] 登陆失败 ： [{}]",loginAccount,"设置活跃身份失败");
+                log.error("账号 ：[{}] 登陆失败 ： [{}]",username,"设置活跃身份失败");
                 throw new BizException("设置活跃身份失败");
             }
             userIdentities.get(0).setIsActive(true);
@@ -169,6 +171,43 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         String redisKey = String.format(REDIS_CACHE_FORMATE,elements[1],elements[2]);
 
         return redisKey;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void switchIdentity(Long systemUserId, Integer identityId) {
+
+        // 查看当前对应的是否为活跃状态
+        UserIdentityType identityTypeParam =  new UserIdentityType();
+          identityTypeParam.setSystemUserId(systemUserId);
+          identityTypeParam.setIdentityTypeId(identityId);
+
+        UserIdentityType userIdentityType =  this.userIdentityTypeMapper.selectByPrimaryKey(identityTypeParam);
+        if(userIdentityType == null){
+            log.error("切换身份失败 ： [{}]","没有查询到对应身份");
+            throw new BizException("没有查询到对应身份");
+        }
+
+        if( !userIdentityType.getIsActive() ){
+            // 将原来的身份设为非活跃状态
+            List<UserIdentity> userIdentities = this.userIdentityTypeMapper.listUserIdentityBySystemUserId(systemUserId);
+            userIdentities.forEach(userIdentity -> {
+                if(userIdentity.getIsActive()){
+                     UserIdentityType inactiveUserIdentityType = new UserIdentityType();
+                        inactiveUserIdentityType.setSystemUserId(userIdentity.getSystemUserId());
+                        inactiveUserIdentityType.setIdentityTypeId(userIdentity.getIdentityId());
+                        inactiveUserIdentityType.setIsActive(false);
+                    this.userIdentityTypeMapper.updateByPrimaryKey(inactiveUserIdentityType);
+                }
+            });
+            // 切换身份
+            identityTypeParam.setIsActive(true);
+            this.userIdentityTypeMapper.updateByPrimaryKey(identityTypeParam);
+
+        }
+
+
+
     }
 
     @Override
