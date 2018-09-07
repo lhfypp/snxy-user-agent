@@ -69,13 +69,14 @@ public class GlobalExceptionHandler {
         }else if(e instanceof ValidateException){
             ValidateException validateException = (ValidateException) e;
             String errMsg = validateException.getErrMsg();
+            log.error("校验异常 ：[{}]",e);
             if(  validateException.getErrCode() != null){
                 Integer  errCode = Integer.parseInt(validateException.getErrCode());
                 return ResultData.fail(errMsg,errCode);
             };
             return ResultData.fail(errMsg);
         }
-
+        log.error("服务器异常 ：[{}]",e);
         return ResultData.fail(e.getMessage());
     }
 }
