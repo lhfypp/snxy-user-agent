@@ -19,6 +19,9 @@ public class LoginUserVO {
 
 
     public void checkParam(){
+
         CheckUtil.isTrue(StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password));
+        CheckUtil.isTrue(loginType == 1 || loginType == 2,"非法的登陆账号类型");
+
    }
 }

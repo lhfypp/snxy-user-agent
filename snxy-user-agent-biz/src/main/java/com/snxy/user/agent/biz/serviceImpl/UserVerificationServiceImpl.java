@@ -4,18 +4,17 @@ import com.snxy.common.exception.BizException;
 import com.snxy.common.util.AESUtil;
 import com.snxy.common.util.MD5Util;
 import com.snxy.user.agent.biz.constant.LoginDeviceEnum;
-import com.snxy.user.agent.dao.mapper.SystemUserMapper;
 import com.snxy.user.agent.dao.mapper.UserIdentityTypeMapper;
 import com.snxy.user.agent.domain.SystemUser;
 import com.snxy.user.agent.domain.UserIdentity;
 import com.snxy.user.agent.domain.UserIdentityType;
-import com.snxy.user.agent.domain.UserIdentityTypeKey;
 import com.snxy.user.agent.service.SystemUserService;
 import com.snxy.user.agent.service.UserVerificationService;
-import com.snxy.user.agent.service.po.CacheUserPO;
+import com.snxy.user.agent.service.po.CacheUser;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.TimeoutUtils;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,8 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     private final String AES_KEY = "snxy-user-agent";
     private final String USER_TOKEN_FORMATE = "TOKEN-%s-%s-%s";
     private final String REDIS_CACHE_FORMATE = "CACHE-%s-%s";
-    private final Long   CACHE_EXPRIRETIME  = 1L;
+    @Value("${token.expire.time}")
+    private  String   CACHE_EXPIRE_TIME ;
 
     private final String DEVICE_PC = "PC";
     private final String DEVICE_MOBILE = "MOBILE";
@@ -103,10 +103,10 @@ public class UserVerificationServiceImpl implements UserVerificationService {
             device = DEVICE_MOBILE;
         }
         // token
-        Long expireTime = System.currentTimeMillis() + TimeoutUtils.toMillis(CACHE_EXPRIRETIME,TimeUnit.DAYS);
+        Long expireTime = System.currentTimeMillis() + TimeoutUtils.toMillis(Integer.parseInt(CACHE_EXPIRE_TIME),TimeUnit.DAYS);
         String token = this.getToken(systemUser,device,expireTime);
         //存储在redis中
-       CacheUserPO cacheUserPO = this.cacheUser(systemUser,device,loginUserVO.getDeviceType(),expireTime,token);
+       CacheUser cacheUser = this.cacheUser(systemUser,device,loginUserVO.getDeviceType(),expireTime,token);
        // 返回 SystemUserVO
        SystemUserVO systemUserVO = SystemUserVO.builder()
                                      .systemUserId(systemUser.getId())
@@ -124,9 +124,9 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         return token;
     }
 
-    public CacheUserPO cacheUser(SystemUser systemUser,String loginDevice,Integer deviceType,Long expireTime,String token){
+    public CacheUser cacheUser(SystemUser systemUser, String loginDevice, Integer deviceType, Long expireTime, String token){
         String redisKey = String.format(REDIS_CACHE_FORMATE,systemUser.getAccount(),loginDevice);
-        CacheUserPO cacheUserPO = CacheUserPO.builder().id(systemUser.getId())
+        CacheUser cacheUser = CacheUser.builder().id(systemUser.getId())
                  .account(systemUser.getAccount())
                 .token(token)
                 .chineseName(systemUser.getChineseName())
@@ -134,28 +134,28 @@ public class UserVerificationServiceImpl implements UserVerificationService {
                 .expireTime(expireTime)
                 .build();
 
-        redisTemplate.opsForValue().set(redisKey, cacheUserPO,CACHE_EXPRIRETIME,TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(redisKey, cacheUser,Integer.parseInt(CACHE_EXPIRE_TIME),TimeUnit.DAYS);
 
-        return cacheUserPO;
+        return cacheUser;
     }
 
     @Override
-    public CacheUserPO getSystemUserByToken(String token) {
+    public CacheUser getSystemUserByToken(String token) {
         // 查询redis中token是否存在
         String redisKey = this.getRedisKey(token);
-        CacheUserPO cacheUserPO = (CacheUserPO) this.redisTemplate.opsForValue().get(redisKey);
-        if(cacheUserPO == null ){
+        CacheUser cacheUser = (CacheUser) this.redisTemplate.opsForValue().get(redisKey);
+        if(cacheUser == null ){
              throw new BizException("请重新登陆");
-        }else if( !token.equals(cacheUserPO.getToken()) ){
+        }else if( !token.equals(cacheUser.getToken()) ){
              throw new BizException("其他设备登陆，请重新登陆");
         }
 
-        if(System.currentTimeMillis() > cacheUserPO.getExpireTime()){
+        if(System.currentTimeMillis() > cacheUser.getExpireTime()){
             // 登陆已超时，redis超时机制失败
             this.redisTemplate.delete(redisKey);
         }
 
-        return cacheUserPO;
+        return cacheUser;
     }
 
     public String getRedisKey(String token){

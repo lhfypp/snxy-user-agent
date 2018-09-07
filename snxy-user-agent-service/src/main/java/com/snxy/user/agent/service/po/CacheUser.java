@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CacheUserPO {
+public class CacheUser {
 
     private Long  id;
     private String account;
