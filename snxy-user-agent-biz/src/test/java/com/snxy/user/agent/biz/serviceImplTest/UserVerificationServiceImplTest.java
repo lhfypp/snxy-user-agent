@@ -54,12 +54,7 @@ public class UserVerificationServiceImplTest {
         log.info(" systemUserVO  :  [{}]",systemUserVO);
     }
 
-    @Test
-    public void switchIdentityTest(){
-        Long systemUserId = 1L;
-        Integer identityId = 2;
-        userVerificationService.switchIdentity(systemUserId,identityId);
-    }
+
 
 
 }

@@ -25,5 +25,6 @@ public interface UserVerificationService {
 
     void loginOut(String token);
 
-    void switchIdentity(Long systemUserId, Integer identityId);
+    void getSmsCode(String mobile);
+
 }

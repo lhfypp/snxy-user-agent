@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CacheUser {
 
-    private Long  id;
+    private Long  systemUserId;
+    private Long userId;
+    private boolean beOnlineUser;
     private String account;
     private String chineseName;
     private String token;

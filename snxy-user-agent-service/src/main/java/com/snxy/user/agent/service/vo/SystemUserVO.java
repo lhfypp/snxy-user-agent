@@ -1,12 +1,10 @@
 package com.snxy.user.agent.service.vo;
 
-import com.snxy.user.agent.domain.UserIdentity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 /**
  * @author Administrator
@@ -19,7 +17,8 @@ import java.util.List;
 public class SystemUserVO {
     private String token;
     private String name;
-    private Long systemUserId;
-    private List<UserIdentity> identityTypes;
+
+  //  private Long systemUserId;
+  //  private List<UserIdentity> identityTypes;
 
 }

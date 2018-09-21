@@ -8,11 +8,9 @@ import com.snxy.user.agent.service.UserVerificationService;
 import com.snxy.user.agent.service.po.CacheUser;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -29,6 +27,20 @@ public class LoginController {
     @Resource
     private UserVerificationService userVerificationService;
 
+
+    /***
+     * 获取手机登陆验证码
+     * @param mobile
+     */
+    @RequestMapping("/smsCode")
+    public void getSmsCode(String mobile){
+        CheckUtil.isTrue(StringUtil.isNotBlank(mobile),"手机号码不能为空");
+        CheckUtil.isTrue(StringUtil.checkMobile(mobile),"手机号码格式有误");
+        this.userVerificationService.getSmsCode(mobile);
+    }
+
+
+
     /**
      * 登陆
      * @param loginUserVO
@@ -39,7 +51,6 @@ public class LoginController {
 
         loginUserVO.checkParam();
         CheckUtil.isTrue(LoginDeviceEnum.containType(loginUserVO.getDeviceType()),"非法的登陆设备");
-
         SystemUserVO systemUserVO = this.userVerificationService.login(loginUserVO);
 
        return ResultData.success(systemUserVO);
@@ -58,19 +69,6 @@ public class LoginController {
         return ResultData.success(cacheUser);
     }
 
-    /***
-     * 切换身份
-     * @param identityId
-     * @return
-     */
-    @RequestMapping("/switchIdentity")
-    public ResultData  switchIdentity(String token,Integer identityId){
-        CheckUtil.isTrue(StringUtil.isNotBlank(token),"token不能为空");
-        Long systemUserId = 1L;
-        this.userVerificationService.switchIdentity(systemUserId,identityId);
-        return ResultData.success("");
-    }
-
 
     /**
      * 退出登陆
@@ -83,9 +81,6 @@ public class LoginController {
         this.userVerificationService.loginOut(token);
         return ResultData.success("");
     }
-
-
-
 
 
 }

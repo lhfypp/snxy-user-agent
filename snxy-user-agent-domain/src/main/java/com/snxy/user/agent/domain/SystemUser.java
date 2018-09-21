@@ -1,16 +1,11 @@
 package com.snxy.user.agent.domain;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 import java.util.Date;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class SystemUser {
     private Long id;
 
@@ -33,6 +28,8 @@ public class SystemUser {
     private Date gmtModified;
 
     private Byte accountStatus;
+
+    private Byte isDelete;
    
 
 }

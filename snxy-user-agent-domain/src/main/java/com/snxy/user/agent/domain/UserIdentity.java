@@ -13,6 +13,5 @@ import lombok.ToString;
 public class UserIdentity {
     private Long systemUserId;
     private Integer identityId;
-    private Boolean isActive;
     private String identityName;
 }

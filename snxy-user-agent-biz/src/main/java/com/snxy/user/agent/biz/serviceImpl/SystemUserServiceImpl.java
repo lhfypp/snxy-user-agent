@@ -1,6 +1,7 @@
 package com.snxy.user.agent.biz.serviceImpl;
 
 import com.snxy.common.exception.BizException;
+import com.snxy.user.agent.biz.constant.LoginTypeEnum;
 import com.snxy.user.agent.dao.mapper.SystemUserMapper;
 import com.snxy.user.agent.domain.SystemUser;
 import com.snxy.user.agent.service.SystemUserService;
@@ -21,19 +22,18 @@ public class SystemUserServiceImpl implements SystemUserService {
     @Resource
     private SystemUserMapper systemUserMapper;
 
-    private final Integer LOGIN_PHONE = 1;
-    private final Integer LOGIN_ACCOUNT = 2;
 
     @Override
     public SystemUser loadSystemUser(String username, Integer loginType) {
 
         SystemUser systemUser = null;
-        if(LOGIN_PHONE == loginType){
-            // 手机号登陆
+
+        if(LoginTypeEnum.LOGIN_MOBILE.getLoginType() == loginType|| LoginTypeEnum.LOGIN_SMS.getLoginType() == loginType){
+            // 根据手机号码查询
             systemUser = this.systemUserMapper.getByPhoneNumber(username);
-        }else if(LOGIN_ACCOUNT == loginType){
-            // 账号 account 登陆
-           systemUser =  this.systemUserMapper.getByAccount(username);
+        }else if(LoginTypeEnum.LOGIN_ACCOUNT.getLoginType() == loginType){
+            // 账号 account 查询
+            systemUser =  this.systemUserMapper.getByAccount(username);
         }else{
             // 未知登陆类型
             log.error("登陆失败 ：登陆号 [{}] ,未知登陆类型 ： [{}]" ,username,loginType);
