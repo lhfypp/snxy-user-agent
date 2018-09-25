@@ -8,10 +8,7 @@ import com.snxy.common.util.StringUtil;
 import com.snxy.user.agent.biz.constant.LoginDeviceEnum;
 import com.snxy.user.agent.biz.constant.LoginTypeEnum;
 import com.snxy.user.agent.domain.*;
-import com.snxy.user.agent.service.OnlineUserService;
-import com.snxy.user.agent.service.StaffService;
-import com.snxy.user.agent.service.SystemUserService;
-import com.snxy.user.agent.service.UserVerificationService;
+import com.snxy.user.agent.service.*;
 import com.snxy.user.agent.service.po.CacheUser;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
@@ -19,14 +16,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.TimeoutUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by 24398 on 2018/8/30.
@@ -45,6 +51,8 @@ public class UserVerificationServiceImpl implements UserVerificationService {
      private OnlineUserService onlineUserService;
      @Resource
      private StaffService staffService;
+     @Resource
+     private SystemLoginLogService systemLoginLogService;
 
 
 
@@ -75,13 +83,18 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         }
         Integer loginType = loginUserVO.getLoginType();
         SystemUser systemUser =  systemUserService.loadSystemUser(username,loginType);
+        // 记录登陆日志  --- 默认失败
+        log.info("curr   threadId : [{}]  ; threadName : [{}]",Thread.currentThread().getId(),Thread.currentThread().getName());
+        HttpServletRequest request = ((ServletRequestAttributes)(RequestContextHolder.getRequestAttributes())).getRequest();
+        Future<Long>  loginLogFuture = this.systemLoginLogService.writeLoginUserLog(loginUserVO,systemUser,request);
+
         if(systemUser == null ){
             log.error("登录号 : [{}]  登陆失败 : [{}]",username,"账号或手机号不存在");
             throw new BizException("账号或手机号不存在");
-        }else if(systemUser.getAccountStatus() == -1){  // 账号停用
+        }else if(systemUser.getAccountStatus() == -1){     // 账号停用
             log.error("登录号 : [{}]  登陆失败 : [{}]",username,"账号停用，请联系新发地管理人员");
             throw new BizException("账号停用，请联系新发地管理人员");
-        }else if(systemUser.getAccountStatus() == 1){  // 账号挂失
+        }else if(systemUser.getAccountStatus() == 1){     // 账号挂失
             log.error("登录号 : [{}]  登陆失败 : [{}]",username,"账号挂失，请联系新发地管理人员");
             throw new BizException("账号挂失，请联系新发地管理人员");
         }
@@ -116,8 +129,54 @@ public class UserVerificationServiceImpl implements UserVerificationService {
                                     // .identityTypes(new ArrayList<>())
                                      .build();
 
+       //  修改登陆状态
+        try {
+          Long systemLoginLogId = loginLogFuture.get(3,TimeUnit.SECONDS);
+          this.systemLoginLogService.setLoginSuccess(systemLoginLogId);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+
         return systemUserVO;
     }
+
+
+/*    @Async
+    public Future<Long> writeLoginUserLog(LoginUserVO loginUserVO , SystemUser systemUser, HttpServletRequest request){
+        Long systemUserId = systemUser.getId();
+        String ip = request.getRemoteAddr();
+        SystemLoginLog loginLog = new SystemLoginLog();
+          loginLog.setUserId(systemUserId);
+          loginLog.setGmtCreate(new Date());
+          loginLog.setIp(ip);
+          loginLog.setNote("");
+          loginLog.setIsSuccess((byte)0);  // 默认没有成功
+          loginLog.setIsDelete((byte)1);
+          loginLog.setLoginTypeCode(LoginDeviceEnum.getDeviceDesc(loginUserVO.getDeviceType()));
+
+          systemLoginLogService.log(loginLog);
+          Long threadId =  Thread.currentThread().getId();
+          String threadName = Thread.currentThread().getName();
+          log.info("writeLoginUserLog  threadId : [{}]  ; threadName : [{}]",threadId,threadName);
+        return new AsyncResult<>(loginLog.getId());
+    }
+
+
+    @Async
+    public  void setLoginSuccess(Long systemLoginLogId){
+        SystemLoginLog systemLoginLog  = new SystemLoginLog();
+           systemLoginLog.setId(systemLoginLogId);
+           systemLoginLog.setIsSuccess((byte)1);
+        Long threadId =  Thread.currentThread().getId();
+        String threadName = Thread.currentThread().getName();
+        log.info("setLoginSuccess  threadId : [{}]  ; threadName : [{}]",threadId,threadName);
+        this.systemLoginLogService.setLoginSuccess(systemLoginLog);
+
+    }*/
 
 
 
