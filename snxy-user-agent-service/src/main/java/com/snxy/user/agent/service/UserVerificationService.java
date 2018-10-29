@@ -21,7 +21,7 @@ public interface UserVerificationService {
      * @param token
      * @return
      */
-    CacheUser getSystemUserByToken(String token);
+    SystemUserVO getSystemUserByToken(String token);
 
     void loginOut(String token);
 

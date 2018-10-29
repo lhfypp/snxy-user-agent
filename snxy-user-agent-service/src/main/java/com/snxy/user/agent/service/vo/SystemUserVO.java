@@ -21,5 +21,6 @@ public class SystemUserVO {
     private String name;
     private Long systemUserId;
     private List<UserIdentity> identityTypes;
-
+    private Long expireTime;
+    private String account;
 }

@@ -52,10 +52,10 @@ public class LoginController {
      * @return
      */
     @RequestMapping("/checkToken")
-    public ResultData<CacheUser> checkToken(@RequestParam(value = "token",required = true) String token){
+    public ResultData<SystemUserVO> checkToken(@RequestParam(value = "token",required = true) String token){
         CheckUtil.isTrue(StringUtil.isNotBlank(token),"token不能为空");
-        CacheUser cacheUser = this.userVerificationService.getSystemUserByToken(token);
-        return ResultData.success(cacheUser);
+        SystemUserVO systemUserVO = this.userVerificationService.getSystemUserByToken(token);
+        return ResultData.success(systemUserVO);
     }
 
     /***
