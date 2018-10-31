@@ -35,7 +35,7 @@ public class LoginController {
      * @return
      */
     @RequestMapping("/login")
-    public ResultData<SystemUserVO> login(@RequestBody LoginUserVO loginUserVO){
+    public ResultData<SystemUserVO> login(LoginUserVO loginUserVO){
 
         loginUserVO.checkParam();
         CheckUtil.isTrue(LoginDeviceEnum.containType(loginUserVO.getDeviceType()),"非法的登陆设备");
