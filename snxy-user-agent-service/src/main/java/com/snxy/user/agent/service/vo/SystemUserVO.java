@@ -20,7 +20,7 @@ public class SystemUserVO {
     private String token;
     private String name;
     private Long systemUserId;
-    private List<UserIdentity> identityTypes;
+    private List<UserIdentityVO> userIdentityVOS;
     private Long expireTime;
-    private String account;
+    private String mobile;
 }

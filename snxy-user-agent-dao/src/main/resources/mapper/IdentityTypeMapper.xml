@@ -2,46 +2,122 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.snxy.user.agent.dao.mapper.IdentityTypeMapper">
   <resultMap id="BaseResultMap" type="com.snxy.user.agent.domain.IdentityType">
-    <result column="id" jdbcType="INTEGER" property="id" />
-    <result column="identity_id" jdbcType="TINYINT" property="identityId" />
+    <id column="id" jdbcType="INTEGER" property="id" />
     <result column="identity_name" jdbcType="VARCHAR" property="identityName" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+    <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified" />
   </resultMap>
+  <sql id="Base_Column_List">
+    id, identity_name, remark, is_delete, gmt_create, gmt_modified
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from identity_type
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from identity_type
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
   <insert id="insert" parameterType="com.snxy.user.agent.domain.IdentityType">
-    insert into identity_type (id, identity_id, identity_name,
-      remark)
-    values (#{id,jdbcType=INTEGER}, #{identityId,jdbcType=TINYINT}, #{identityName,jdbcType=VARCHAR},
-      #{remark,jdbcType=VARCHAR})
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into identity_type (identity_name, remark, is_delete, 
+      gmt_create, gmt_modified)
+    values (#{identityName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{isDelete,jdbcType=TINYINT}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.snxy.user.agent.domain.IdentityType">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
     insert into identity_type
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="identityId != null">
-        identity_id,
-      </if>
       <if test="identityName != null">
         identity_name,
       </if>
       <if test="remark != null">
         remark,
       </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="identityId != null">
-        #{identityId,jdbcType=TINYINT},
-      </if>
       <if test="identityName != null">
         #{identityName,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
     </trim>
   </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.snxy.user.agent.domain.IdentityType">
+    update identity_type
+    <set>
+      <if test="identityName != null">
+        identity_name = #{identityName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.snxy.user.agent.domain.IdentityType">
+    update identity_type
+    set identity_name = #{identityName,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=TINYINT},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--查询所有身份W-->
+  <select id="selectAllType" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from identity_type
+    where is_delete = 0
+  </select>
+
+  <select id="selectByIds"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from identity_type
+    where id IN
+    <foreach collection="list" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+    AND  is_delete = #{isDelete}
+  </select>
 </mapper>

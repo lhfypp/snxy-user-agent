@@ -8,8 +8,8 @@ public enum  LoginDeviceEnum {
     PHONE_ANDROID(1,"安卓手机"),
     PHONE_IOS(2,"苹果手机"),
     PAD_ANDROID(3,"安卓平板"),
-    PAD_IOS(4,"苹果平板"),
-    PC (5,"电脑端");
+    PAD_IOS(4,"苹果平板");
+   // PC (5,"电脑端");
 
     private Integer deviceType ;
     private String deviceDesc;

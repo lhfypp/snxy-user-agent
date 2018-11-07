@@ -1,8 +1,9 @@
 package com.snxy.user.agent.service;
 
-import com.snxy.user.agent.service.po.CacheUser;
 import com.snxy.user.agent.service.vo.LoginUserVO;
 import com.snxy.user.agent.service.vo.SystemUserVO;
+
+import java.util.Map;
 
 /**
  * @author Administrator
@@ -14,7 +15,7 @@ public interface UserVerificationService {
      * @param loginUserVO
      * @return
      */
-    SystemUserVO login(LoginUserVO loginUserVO);
+    Map<String,Object> loginOrRegistry(LoginUserVO loginUserVO);
 
     /**
      * 由token获取用户信息
@@ -25,5 +26,9 @@ public interface UserVerificationService {
 
     void loginOut(String token);
 
-    void switchIdentity(Long systemUserId, Integer identityId);
+
+
+    String getSmsCode(String mobile);
+
+    SystemUserVO changCacheUser(Long systemUserId);
 }

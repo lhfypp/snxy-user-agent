@@ -16,8 +16,7 @@ public interface SystemUserMapper {
 
     int updateByPrimaryKey(SystemUser record);
 
-    //登录
-    SystemUser getByAccount(@Param("account") String account);
+    SystemUser getByPhoneNumber(@Param("username") String username, @Param("isDelete") Boolean isDelete);
 
-    SystemUser getByPhoneNumber(@Param("mobile") String mobile);
+    SystemUser getByAccount(@Param("username") String username, @Param("isDelete") Boolean isDelete);
 }

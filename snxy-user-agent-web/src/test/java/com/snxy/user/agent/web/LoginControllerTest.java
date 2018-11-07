@@ -19,7 +19,7 @@ public class LoginControllerTest {
     @Test
     public void LoginUserVO(){
         LoginUserVO loginUserVO = new LoginUserVO();
-        loginUserVO.setUsername("100002");
+        loginUserVO.setMobile("100002");
         loginUserVO.setPassword("");
         loginUserVO.setDeviceType(1);
 

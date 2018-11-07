@@ -4,7 +4,6 @@ import com.snxy.common.exception.BizException;
 import com.snxy.user.agent.dao.mapper.SystemUserMapper;
 import com.snxy.user.agent.domain.SystemUser;
 import com.snxy.user.agent.service.SystemUserService;
-import io.netty.handler.codec.compression.Bzip2Decoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +24,25 @@ public class SystemUserServiceImpl implements SystemUserService {
     private final Integer LOGIN_ACCOUNT = 2;
 
     @Override
-    public SystemUser loadSystemUser(String username, Integer loginType) {
+    public SystemUser loadSystemUser(String username) {
 
         SystemUser systemUser = null;
-        if(LOGIN_PHONE == loginType){
-            // 手机号登陆
-            systemUser = this.systemUserMapper.getByPhoneNumber(username);
-        }else if(LOGIN_ACCOUNT == loginType){
-            // 账号 account 登陆
-           systemUser =  this.systemUserMapper.getByAccount(username);
-        }else{
-            // 未知登陆类型
-            log.error("登陆失败 ：登陆号 [{}] ,未知登陆类型 ： [{}]" ,username,loginType);
-            throw new BizException("未知登陆类型");
-        }
+        systemUser = this.systemUserMapper.getByPhoneNumber(username,false);
+        return systemUser;
+    }
 
+    @Override
+    public void insert(SystemUser systemUser) {
+        this.systemUserMapper.insertSelective(systemUser);
+    }
+
+
+    @Override
+    public SystemUser getById(Long systemUserId, Boolean isDelete) {
+        SystemUser systemUser = this.systemUserMapper.selectByPrimaryKey(systemUserId);
+        if(systemUser == null || systemUser.getIsDelete()){
+            return null;
+        }
         return systemUser;
     }
 }

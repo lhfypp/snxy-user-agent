@@ -1,16 +1,11 @@
 package com.snxy.user.agent.domain;
 
-
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 import java.util.Date;
-
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class SystemUser {
     private Long id;
 
@@ -20,19 +15,17 @@ public class SystemUser {
 
     private String chineseName;
 
-    private String nick;
-
     private String pwd;
 
-    private Byte gender;
-
     private Date regDate;
+
+    private Byte accountStatus;
 
     private Date gmtCreate;
 
     private Date gmtModified;
 
-    private Byte accountStatus;
-   
+    private Boolean isDelete;
+
 
 }

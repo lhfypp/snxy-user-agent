@@ -1,18 +1,18 @@
 package com.snxy.user.agent.domain;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-//查询用户身份的映射表
+@Builder
 public class UserIdentity {
-    private Long systemUserId;
+    private Long id;
+
+    private Long onlineUserId;
+
     private Integer identityId;
-    private Boolean isActive;
-    private String identityName;
+
+    private Boolean isDelete;
+
+
 }
