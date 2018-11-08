@@ -36,14 +36,14 @@ public class LoginController {
      * @param mobile
      */
     @RequestMapping("/smsCode")
-    public void getSmsCode(String mobile){
+    public ResultData getSmsCode(String mobile){
         if(!StringUtil.checkMobile(mobile)){
             log.error("获取登陆验证码出错 ： [{}]","手机号有误，请输入正确手机号");
             throw new BizException("手机号有误，请输入正确手机号");
         };
 
          this.userVerificationService.getSmsCode(mobile);
-
+        return ResultData.success(null);
     }
 
 
