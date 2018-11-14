@@ -5,10 +5,11 @@ package com.snxy.user.agent.biz.constant;
  */
 public enum IdentityTypeEnum {
 
-    VISITOR(4,"随便看看"),
+    VISITOR(5,"随便看看"),
+    AGENT(4,"经纪人"),
     DRIVER(3,"司机"),
-    Employee(2,"员工"),
-    CHARGE_PERSON(1,"负责人");
+    EMPLOYEE(2,"商户员工"),
+    CHARGE_PERSON(1,"商户负责人");
     // PC (5,"电脑端");
 
     private Integer id ;

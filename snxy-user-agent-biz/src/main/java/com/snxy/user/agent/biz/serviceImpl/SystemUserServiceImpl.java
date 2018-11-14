@@ -25,7 +25,6 @@ public class SystemUserServiceImpl implements SystemUserService {
 
     @Override
     public SystemUser loadSystemUser(String username) {
-
         SystemUser systemUser = null;
         systemUser = this.systemUserMapper.getByPhoneNumber(username,false);
         return systemUser;

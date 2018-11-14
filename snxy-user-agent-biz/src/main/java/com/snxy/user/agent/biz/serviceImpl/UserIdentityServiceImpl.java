@@ -1,5 +1,6 @@
 package com.snxy.user.agent.biz.serviceImpl;
 
+import com.snxy.user.agent.biz.constant.IdentityTypeEnum;
 import com.snxy.user.agent.dao.mapper.UserIdentityMapper;
 import com.snxy.user.agent.domain.IdentityType;
 import com.snxy.user.agent.domain.OnlineUser;
@@ -41,12 +42,20 @@ public class UserIdentityServiceImpl implements UserIdentityService {
         // 查询IdentityType 集合
         List<Integer> identityTypeIds = userIdentities.parallelStream().map(UserIdentity::getIdentityId).collect(Collectors.toList());
         List<IdentityType> identityTypes = this.identityTypeService.getByIds(identityTypeIds,false);
+
         // 转换
         List<UserIdentityVO> userIdentityVOS = identityTypes.parallelStream().map(identityType -> UserIdentityVO.builder()
                                                                     .identityTypeId(identityType.getId())
                                                                     .identityName(identityType.getIdentityName())
                                                                     .build())
                                                                     .collect(Collectors.toList());
+
+        if(userIdentityVOS.size() > 1){
+            // 去掉随便看看身份
+            userIdentityVOS = userIdentityVOS.parallelStream().filter(userIdentityVO ->
+                                                     userIdentityVO.getIdentityTypeId() != IdentityTypeEnum.VISITOR.getId())
+                                                      .collect(Collectors.toList());
+        }
 
         return userIdentityVOS;
     }

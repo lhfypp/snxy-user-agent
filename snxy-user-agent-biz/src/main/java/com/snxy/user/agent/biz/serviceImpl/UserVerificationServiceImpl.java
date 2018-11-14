@@ -1,9 +1,11 @@
 package com.snxy.user.agent.biz.serviceImpl;
 
 import com.snxy.common.exception.BizException;
+import com.snxy.common.response.ResultData;
 import com.snxy.common.util.AESUtil;
 import com.snxy.common.util.MD5Util;
 import com.snxy.user.agent.biz.constant.IdentityTypeEnum;
+import com.snxy.user.agent.biz.fegin.SmsService;
 import com.snxy.user.agent.domain.OnlineUser;
 import com.snxy.user.agent.domain.ShortMessage;
 import com.snxy.user.agent.domain.SystemUser;
@@ -21,11 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Created by 24398 on 2018/8/30.
@@ -53,6 +53,8 @@ public class UserVerificationServiceImpl implements UserVerificationService {
      private UserIdentityService  userIdentityService;
      @Resource
      private OnlineUserService onlineUserService;
+     @Resource
+     private SmsService smsService;
 
 
     @Override
@@ -65,38 +67,52 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         Boolean beRegistry = false;
         SystemUser systemUser = this.systemUserService.loadSystemUser(username);
         if (systemUser == null) {
-            // 注册用户
-            log.info("登录号 : [{}]  登陆失败 : [{}]", username, "账号或手机号不存在 ,注册该用户");
-            beRegistry = true;
-            systemUser = this.registry(loginUserVO);
+            if(loginUserVO.getPwdType() == 1 ){
+                // 校验码
+                this.checkSmsCode(loginUserVO.getPassword(),loginUserVO.getMobile());
+                // 验证码登陆    注册用户
+                log.info("登录号 : [{}]  登陆失败 : [{}]", username, "账号或手机号不存在 ,注册该用户");
+                beRegistry = true;
+                systemUser = this.registry(loginUserVO);
+            }else if(loginUserVO.getPwdType() == 2){
+                // 密码登陆
+                log.error("登陆号 ：[{}] 登陆失败 ：[{}]",username,"没有查询到用户");
+                throw new BizException("没有查询到用户");
+            }else{
+                log.error("登陆号 ：[{}] 登陆失败 ：[{}]",username,"未知的登陆密码类型");
+                throw new BizException("未知的登陆密码类型");
+            }
         }
 
-          // 校验码或者密码
-         this.checkPassword(loginUserVO.getPassword(),systemUser.getPwd(),loginUserVO.getPwdType(),loginUserVO.getMobile());
+          // 校验密码
+        if(loginUserVO.getPwdType() == 2){
+            // 密码
+            if(!systemUser.getPwd().equals(MD5Util.encrypt(loginUserVO.getPassword()))){
+                log.error("登陆失败 ： [{}]","密码有误");
+                throw new BizException("密码有误");
+            }
+        }
 
          //  存储redis
         SystemUserVO systemUserVO = this.cacheSystemUserVO(systemUser,device);
         Map<String,Object> map = new HashMap();
           map.put("beRegistry",beRegistry);
           map.put("systemUserVO",systemUserVO);
+        log.info("systemUserVO : ----->  [{}]",systemUserVO);
         return map;
     }
 
-    public void checkPassword(String pwd,String dateBasePwd,Integer pwdType,String mobile){
-        if(pwdType == 1){
-            // 验证码
-            String redisKey = String.format(REDIS_SMSCODE_MODE,mobile);
-            String smsCode =(String) this.redisTemplate.opsForValue().get(redisKey);
-            if(smsCode == null){
-                // 过期
-                log.error("登陆失败 ： [{}]","验证码过期，请重新获取");
-                throw new BizException("验证码过期，请重新获取");
-            }else if(!smsCode.equals(pwd)){
-                log.error("登陆失败 ： [{}]","验证码输入有误");
-                throw new BizException("验证码输入有误");
-            }
-        }else{
-            // 密码
+    public void checkSmsCode(String smsCode,String mobile){
+        // 验证码
+        String redisKey = String.format(REDIS_SMSCODE_MODE,mobile);
+        String redisSmsCode =(String) this.redisTemplate.opsForValue().get(redisKey);
+        if(smsCode == null){
+            // 过期
+            log.error("登陆失败 ： [{}]","验证码过期，请重新获取");
+            throw new BizException("验证码过期，请重新获取");
+        }else if(!redisSmsCode.equals(smsCode)){
+            log.error("登陆失败 ： [{}]","验证码输入有误");
+            throw new BizException("验证码输入有误");
         }
     }
 
@@ -111,13 +127,13 @@ public class UserVerificationServiceImpl implements UserVerificationService {
         String token = this.getToken(systemUser, device, expireTime);
         // 返回 SystemUserVO
         SystemUserVO systemUserVO = SystemUserVO.builder()
-                .systemUserId(systemUser.getId())
-                .name(systemUser.getChineseName())
-                .token(token)
-                .userIdentityVOS(userIdentityVOS)
-                .expireTime(expireTime)
-                .mobile(systemUser.getMobile())
-                .build();
+                        .systemUserId(systemUser.getId())
+                        .name(systemUser.getChineseName())
+                        .token(token)
+                        .userIdentityVOS(userIdentityVOS)
+                        .expireTime(expireTime)
+                        .mobile(systemUser.getMobile())
+                        .build();
 
         String redisKey = String.format(REDIS_CACHE_MODE, systemUser.getAccount());
         redisTemplate.opsForValue().set(redisKey, systemUserVO, Integer.parseInt(CACHE_EXPIRE_TIME), TimeUnit.DAYS);
@@ -156,7 +172,8 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
         this.onlineUserService.insert(onlineUser);
         // 设置默认身份
-        UserIdentity userIdentity = UserIdentity.builder().identityId(IdentityTypeEnum.VISITOR.getId())
+        UserIdentity userIdentity = UserIdentity.builder()
+                                                 .identityId(IdentityTypeEnum.VISITOR.getId())
                                                  .onlineUserId(onlineUser.getId())
                                                  .build();
 
@@ -170,15 +187,18 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     public SystemUserVO getSystemUserByToken(String token) {
         // 查询redis中token是否存在
         String redisKey = this.getRedisKey(token);
-        SystemUserVO systemUserVO=(SystemUserVO) this.redisTemplate.opsForValue().get(redisKey);
+        SystemUserVO systemUserVO = (SystemUserVO) this.redisTemplate.opsForValue().get(redisKey);
         if (systemUserVO == null) {
+            log.error("校验token失败 ：[{}]","请重新登陆");
             throw new BizException("请重新登陆");
         } else if (!token.equals(systemUserVO.getToken())) {
+            log.error("校验token失败 ：[{}]","其他设备登陆，请重新登陆");
             throw new BizException("其他设备登陆，请重新登陆");
         }
 
         if (System.currentTimeMillis() > systemUserVO.getExpireTime()) {
             // 登陆已超时，redis超时机制失败
+            log.error("校验token失败 ：[{}]","redis超时机制失效");
             this.redisTemplate.delete(redisKey);
         }
 
@@ -212,11 +232,18 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
     @Override
     public String getSmsCode(String mobile) {
-        String smsCode = "123456";
+        // 生成验证码
+        String smsCode = this.getSmsCode();
+        // 调用smsService
+        ResultData resultData =  this.smsService.sendSmsCode(mobile,smsCode,1L);
+        if(!resultData.isResult()){
+            log.error("手机号码 ： [{}] ，发送验证码失败",mobile);
+            throw new BizException("发送验证码失败");
+        }
         log.info("获取手机验证码 ，mobile : [{}] ,验证码 ： [{}]",mobile,smsCode);
         // 保存在redis中
          String redisKey = String.format(REDIS_SMSCODE_MODE,mobile);
-         this.redisTemplate.opsForValue().set(redisKey,smsCode,30,TimeUnit.SECONDS);
+         this.redisTemplate.opsForValue().set(redisKey,smsCode,20,TimeUnit.MINUTES);
         // 记录在数据库中
         ShortMessage shortMessage = ShortMessage.builder()
                                           .content(smsCode)
@@ -230,13 +257,32 @@ public class UserVerificationServiceImpl implements UserVerificationService {
     }
 
 
+    public String getSmsCode(){
+        StringBuilder sb = new StringBuilder("");
+        for(int i =0;i< 6;i++){
+           Integer code =(int)(Math.random()*10);
+            sb.append(code);
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        StringBuilder sb = new StringBuilder("");
+        for(int i =0;i< 6;i++){
+            Integer code =(int)(Math.random()*10);
+            sb.append(code);
+        }
+        System.out.println( "sb  :  ----> "+sb.toString() +":  length: "+sb.toString().length());
+    }
+
+
     @Override
     public SystemUserVO changCacheUser(Long systemUserId) {
         // 查找SystemUser
         SystemUser systemUser = this.systemUserService.getById(systemUserId,false);
         //
         String redisKey = String.format(REDIS_CACHE_MODE,systemUser.getAccount());
-        SystemUserVO oldSystemUserVO=(SystemUserVO) this.redisTemplate.opsForValue().get(redisKey);
+        SystemUserVO oldSystemUserVO = (SystemUserVO) this.redisTemplate.opsForValue().get(redisKey);
         if (oldSystemUserVO == null) {
             log.error("刷新redis缓存用户对象失败 : [{}]","缓存用户已过期，请重新登陆");
             throw new BizException("请重新登陆");
@@ -264,8 +310,6 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
         return systemUserVO;
     }
-
-
 
 
 }
